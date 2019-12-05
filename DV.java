@@ -70,7 +70,7 @@ public class DV implements RoutingAlgorithm {
             Payload payload = new Payload();
             // Occupy payload with local table
             for (DVRoutingTableEntry entry : table) {
-                payload.addEntry(entry);
+                payload.addEntry(new DVRoutingTableEntry(entry.getDestination(), entry.getInterface(), entry.getMetric(), router.getCurrentTime()));
             }
             // Should we send if iface is up?
             p.setPayload(payload);
