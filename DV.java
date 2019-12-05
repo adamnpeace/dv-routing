@@ -1,26 +1,34 @@
+import java.util.Vector;
 
 public class DV implements RoutingAlgorithm {
-    
     static int LOCAL = -1;
     static int UNKNOWN = -2;
     static int INFINITY = 60;
-        
-    public DV()
-    {
+
+    public Router router;
+    public Vector<DVRoutingTableEntry> table;
+    public int update_interval;
+    public boolean allow_preverse;
+    public boolean allow_expire;
+
+    public DV() {
+        table = new Vector<DVRoutingTableEntry>();
     }
 
-    public void setRouterObject(Router obj)
-    {
+    public void setRouterObject(Router obj) {
+        router = obj;
     }
-    
-    public void setUpdateInterval(int u)
-    {
+
+    public void setUpdateInterval(int u) {
+        update_interval = u;
     }
-    
-    public void setAllowPReverse(boolean flag){
+
+    public void setAllowPReverse(boolean flag) {
+        allow_preverse = flag;
     }
-    
-    public void setAllowExpire(boolean flag){
+
+    public void setAllowExpire(boolean flag) {
+        allow_expire = flag;
     }
     
     public void initalise()
@@ -31,9 +39,8 @@ public class DV implements RoutingAlgorithm {
     {
         return 0;
     }
-       
-    public void tidyTable()
-    {
+
+    public void tidyTable() {
     }
     
     public Packet generateRoutingPacket(int iface)
@@ -44,31 +51,62 @@ public class DV implements RoutingAlgorithm {
     public void processRoutingPacket(Packet p, int iface)
     {
     }
-    
-    public void showRoutes()
-    {
+
+    public void showRoutes() {
+        System.out.println("Router " + router.getId());
+        for (int i = 0; i < table.size(); i++) {
+            System.out.println(table.get(i).toString());
+        }
     }
 
 }
 
-class DVRoutingTableEntry implements RoutingTableEntry
-{
-    
-    public DVRoutingTableEntry(int d, int i, int m, int t)
-	{
-	}
-    public int getDestination() { return 0; } 
-    public void setDestination(int d) { }
-    public int getInterface() { return 0; }
-    public void setInterface(int i) { }
-    public int getMetric() { return 0;}
-    public void setMetric(int m) { } 
-    public int getTime() {return 0;}
-    public void setTime(int t) { }
-    
-    public String toString() 
-	{
-	    return "";
-	}
-}
+class DVRoutingTableEntry implements RoutingTableEntry {
+    private int dst;
+    private int iface;
+    private int metric;
+    private int time;
 
+    public DVRoutingTableEntry(int d, int i, int m, int t) {
+        dst = d;
+        iface = i;
+        metric = m;
+        time = t;
+    }
+
+    public int getDestination() {
+        return dst;
+    }
+
+    public void setDestination(int d) {
+        dst = d;
+    }
+
+    public int getInterface() {
+        return iface;
+    }
+
+    public void setInterface(int i) {
+        iface = i;
+    }
+
+    public int getMetric() {
+        return metric;
+    }
+
+    public void setMetric(int m) {
+        metric = m;
+    }
+
+    public int getTime() {
+        return time;
+    }
+
+    public void setTime(int t) {
+        time = t;
+    }
+
+    public String toString() {
+        return "d " + dst + " i " + iface + " m " + metric;
+    }
+}
