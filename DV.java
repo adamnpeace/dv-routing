@@ -1,3 +1,4 @@
+import java.util.Collections;
 import java.util.Vector;
 
 public class DV implements RoutingAlgorithm {
@@ -30,29 +31,87 @@ public class DV implements RoutingAlgorithm {
     public void setAllowExpire(boolean flag) {
         allow_expire = flag;
     }
-    
-    public void initalise()
-    {
+
+    public void initalise() {
+        DVRoutingTableEntry localEntry = new DVRoutingTableEntry(router.getId(), LOCAL, 0, router.getCurrentTime());
+        table.add(localEntry);
     }
 
-    public int getNextHop(int destination)
-    {
-        return 0;
+    public int getNextHop(int destination) {
+        if (destination == router.getId()) {
+            // Destination is this router
+            return LOCAL;
+        }
+        for (DVRoutingTableEntry entry : table) {
+            if (entry.getDestination() == destination) {
+                // Table has entry for given destination, forward
+                return entry.getInterface();
+            }
+        }
+        // Table has no entries for given destination
+        return UNKNOWN;
     }
 
     public void tidyTable() {
+
     }
-    
-    public Packet generateRoutingPacket(int iface)
-    {
-        return null;
+
+    public Packet generateRoutingPacket(int iface) {
+        RoutingPacket p = new RoutingPacket(router.getId(), Packet.BROADCAST);
+        Payload payload = new Payload();
+        // Occupy payload with local table
+        for (DVRoutingTableEntry entry : table) {
+            payload.addEntry(entry);
+        }
+        p.setPayload(payload);
+        return p;
     }
-    
-    public void processRoutingPacket(Packet p, int iface)
-    {
+
+    public void processRoutingPacket(Packet p, int iface) {
+        if (p.getType() == Packet.ROUTING) {
+            // Increment the Metric //
+            for (Object datum : p.getPayload().getData()) {
+                DVRoutingTableEntry in_entry = (DVRoutingTableEntry) datum;
+                int new_metric = in_entry.getMetric() + router.getInterfaceWeight(iface);
+                // Search for destination in entry table //
+                boolean not_found = true;
+                for (DVRoutingTableEntry local_entry : table) {
+                    if (local_entry.getDestination() == in_entry.getDestination()) {
+                        // Entry found in local table with this destination
+                        not_found = false;
+                        if (new_metric < local_entry.getMetric()) {
+                            // Local entry has greater metric than incoming entry
+                            local_entry.setMetric(new_metric);
+                            local_entry.setInterface(iface);
+                        }
+                    }
+                }
+
+                // No entry found in local table with this destination
+                if (not_found) {
+                    DVRoutingTableEntry rt_new = new DVRoutingTableEntry(in_entry.getDestination(), iface, new_metric, router.getCurrentTime());
+                    table.add(rt_new);
+                }
+            }
+
+
+        }
+        if (p.getType() == Packet.DATA) {
+            int out_iface = getNextHop(p.getDestination());
+            if (out_iface > -1) router.send(p, out_iface);
+        }
     }
 
     public void showRoutes() {
+        for (int i = 0; i < table.size(); i++) {
+            for (int j = 0; j < table.size(); j++) {
+                if (table.get(i).getDestination() < table.get(j).getDestination()) {
+                    DVRoutingTableEntry temp = table.get(i);
+                    table.set(i, table.get(j));
+                    table.set(j, temp);
+                }
+            }
+        }
         System.out.println("Router " + router.getId());
         for (int i = 0; i < table.size(); i++) {
             System.out.println(table.get(i).toString());
