@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3848d489-056b-4312-86de-7b6cc5a81c70" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DV.java" beforeDir="false" afterPath="$PROJECT_DIR$/DV.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Link.java" beforeDir="false" afterPath="$PROJECT_DIR$/Link.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -35,7 +37,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Application.Test 1">
+  <component name="RunManager" selected="Application.Test 2">
     <configuration name="Simulator" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Simulator" />
       <module name="dv-cw" />
@@ -45,7 +47,7 @@
       </method>
     </configuration>
     <configuration name="Test 1" type="Application" factoryName="Application">
-      <output_file path="test1.log" is_save="true" />
+      <output_file path="logs/test1.log" is_save="true" />
       <option name="MAIN_CLASS_NAME" value="Simulator" />
       <module name="dv-cw" />
       <option name="PROGRAM_PARAMETERS" value="test1.cfg" />
@@ -53,8 +55,18 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Test 2" type="Application" factoryName="Application">
+      <output_file path="logs/test2.log" is_save="true" />
+      <option name="MAIN_CLASS_NAME" value="Simulator" />
+      <module name="dv-cw" />
+      <option name="PROGRAM_PARAMETERS" value="test2.cfg" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <list>
       <item itemvalue="Application.Test 1" />
+      <item itemvalue="Application.Test 2" />
       <item itemvalue="Application.Simulator" />
     </list>
     <recent_temporary>

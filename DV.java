@@ -53,53 +53,75 @@ public class DV implements RoutingAlgorithm {
     }
 
     public void tidyTable() {
+//        System.out.println("Tidying tables on " + router.getId());
+        // Exp time, corresponding interfaces are up/down
+        for (int i = 0; i < table.size(); i++) {
+            if (!router.getInterfaceState(table.get(i).getInterface())) {
+                table.get(i).setMetric(INFINITY);
+//                System.out.println("Just set " + table.get(i).toString());
+            }
 
+        }
     }
 
     public Packet generateRoutingPacket(int iface) {
-        RoutingPacket p = new RoutingPacket(router.getId(), Packet.BROADCAST);
-        Payload payload = new Payload();
-        // Occupy payload with local table
-        for (DVRoutingTableEntry entry : table) {
-            payload.addEntry(entry);
+        if (router.getInterfaceState(iface)) {
+            RoutingPacket p = new RoutingPacket(router.getId(), Packet.BROADCAST);
+            Payload payload = new Payload();
+            // Occupy payload with local table
+            for (DVRoutingTableEntry entry : table) {
+                payload.addEntry(entry);
+            }
+            // Should we send if iface is up?
+            p.setPayload(payload);
+            return p;
+        } else {
+            return null;
         }
-        p.setPayload(payload);
-        return p;
     }
 
     public void processRoutingPacket(Packet p, int iface) {
-        if (p.getType() == Packet.ROUTING) {
-            // Increment the Metric //
-            for (Object datum : p.getPayload().getData()) {
-                DVRoutingTableEntry in_entry = (DVRoutingTableEntry) datum;
-                int new_metric = in_entry.getMetric() + router.getInterfaceWeight(iface);
-                // Search for destination in entry table //
-                boolean not_found = true;
-                for (DVRoutingTableEntry local_entry : table) {
-                    if (local_entry.getDestination() == in_entry.getDestination()) {
-                        // Entry found in local table with this destination
-                        not_found = false;
-                        if (new_metric < local_entry.getMetric()) {
-                            // Local entry has greater metric than incoming entry
-                            local_entry.setMetric(new_metric);
-                            local_entry.setInterface(iface);
+        if (router.getInterfaceState(iface)) {
+            // The interface is up
+            if (p.getType() == Packet.ROUTING) {
+                // Increment the Metric //
+                for (Object datum : p.getPayload().getData()) {
+                    DVRoutingTableEntry in_entry = (DVRoutingTableEntry) datum;
+                    int new_metric = in_entry.getMetric() + router.getInterfaceWeight(iface);
+                    // Search for destination in entry table //
+
+                    // Finds a local entry with matching dst
+                    int match = -1;
+                    for (int i = 0; i < table.size(); i++) {
+                        if (table.get(i).getDestination() == in_entry.getDestination()) {
+                            match = i;
                         }
                     }
+
+                    if (match < 0) {
+                        // No entry found in local table with this destination
+                        DVRoutingTableEntry rt_new = new DVRoutingTableEntry(in_entry.getDestination(), iface, new_metric, router.getCurrentTime());
+                        table.add(rt_new);
+                    } else if (table.get(match).getInterface() == iface) {
+                        table.get(match).setMetric(new_metric);
+                    } else if (new_metric < table.get(match).getMetric()) {
+                        // Found local entry has greater metric than incoming entry
+                        table.get(match).setMetric(new_metric);
+                        table.get(match).setInterface(iface);
+                    }
+
                 }
 
-                // No entry found in local table with this destination
-                if (not_found) {
-                    DVRoutingTableEntry rt_new = new DVRoutingTableEntry(in_entry.getDestination(), iface, new_metric, router.getCurrentTime());
-                    table.add(rt_new);
-                }
+
             }
-
-
+            if (p.getType() == Packet.DATA) {
+                int out_iface = getNextHop(p.getDestination());
+                if (out_iface > -1) router.send(p, out_iface);
+            }
+        } else {
+//            System.out.println("LINK " + iface + " DOWN on router " + router.getId());
         }
-        if (p.getType() == Packet.DATA) {
-            int out_iface = getNextHop(p.getDestination());
-            if (out_iface > -1) router.send(p, out_iface);
-        }
+
     }
 
     public void showRoutes() {
