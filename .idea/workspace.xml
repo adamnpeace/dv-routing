@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3848d489-056b-4312-86de-7b6cc5a81c70" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DV.java" beforeDir="false" afterPath="$PROJECT_DIR$/DV.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Link.java" beforeDir="false" afterPath="$PROJECT_DIR$/Link.java" afterDir="false" />
-    </list>
+    <list default="true" id="3848d489-056b-4312-86de-7b6cc5a81c70" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,7 +32,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Application.Test 3">
+  <component name="RunManager" selected="Application.Test 4">
     <configuration name="Simulator" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Simulator" />
       <module name="dv-cw" />
@@ -72,10 +68,20 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Test 4" type="Application" factoryName="Application">
+      <output_file path="logs/test4.log" is_save="true" />
+      <option name="MAIN_CLASS_NAME" value="Simulator" />
+      <module name="dv-cw" />
+      <option name="PROGRAM_PARAMETERS" value="test4.cfg" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <list>
       <item itemvalue="Application.Test 1" />
       <item itemvalue="Application.Test 2" />
       <item itemvalue="Application.Test 3" />
+      <item itemvalue="Application.Test 4" />
       <item itemvalue="Application.Simulator" />
     </list>
     <recent_temporary>
