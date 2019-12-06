@@ -43,7 +43,7 @@ public class DV implements RoutingAlgorithm {
             return LOCAL;
         }
         for (DVRoutingTableEntry entry : table) {
-            if (entry.getDestination() == destination) {
+            if (entry.getDestination() == destination && entry.getMetric() != INFINITY) {
                 // Table has entry for given destination, forward
                 return entry.getInterface();
             }
@@ -70,12 +70,21 @@ public class DV implements RoutingAlgorithm {
             Payload payload = new Payload();
             // Occupy payload with local table
             for (DVRoutingTableEntry entry : table) {
-                payload.addEntry(new DVRoutingTableEntry(entry.getDestination(), entry.getInterface(), entry.getMetric(), router.getCurrentTime()));
+                int metric;
+
+                // || entry.getMetric() > INFINITY
+                if (allow_preverse && entry.getInterface() == iface) {
+                    metric = INFINITY;
+                } else {
+                    metric = entry.getMetric();
+                }
+
+                payload.addEntry(new DVRoutingTableEntry(entry.getDestination(), entry.getInterface(), metric, router.getCurrentTime()));
             }
-            // Should we send if iface is up?
             p.setPayload(payload);
             return p;
         } else {
+            // Do not send if the interface is down
             return null;
         }
     }
@@ -88,6 +97,7 @@ public class DV implements RoutingAlgorithm {
                 for (Object datum : p.getPayload().getData()) {
                     DVRoutingTableEntry in_entry = (DVRoutingTableEntry) datum;
                     int new_metric = in_entry.getMetric() + router.getInterfaceWeight(iface);
+                    if (new_metric > INFINITY) new_metric = INFINITY;
                     // Search for destination in entry table //
 
                     // Finds a local entry with matching dst

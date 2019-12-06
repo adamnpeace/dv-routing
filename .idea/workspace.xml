@@ -36,7 +36,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Application.Test 2">
+  <component name="RunManager" selected="Application.Test 3">
     <configuration name="Simulator" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Simulator" />
       <module name="dv-cw" />
@@ -63,9 +63,19 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Test 3" type="Application" factoryName="Application">
+      <output_file path="logs/test3.log" is_save="true" />
+      <option name="MAIN_CLASS_NAME" value="Simulator" />
+      <module name="dv-cw" />
+      <option name="PROGRAM_PARAMETERS" value="test3.cfg" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <list>
       <item itemvalue="Application.Test 1" />
       <item itemvalue="Application.Test 2" />
+      <item itemvalue="Application.Test 3" />
       <item itemvalue="Application.Simulator" />
     </list>
     <recent_temporary>
