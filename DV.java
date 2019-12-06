@@ -53,14 +53,12 @@ public class DV implements RoutingAlgorithm {
     }
 
     public void tidyTable() {
-//        System.out.println("Tidying tables on " + router.getId());
         // Exp time, corresponding interfaces are up/down
         for (int i = 0; i < table.size(); i++) {
             if (!router.getInterfaceState(table.get(i).getInterface())) {
                 table.get(i).setMetric(INFINITY);
-//                System.out.println("Just set " + table.get(i).toString());
             }
-
+            // TODO: Implement garbage collection
         }
     }
 
@@ -72,7 +70,6 @@ public class DV implements RoutingAlgorithm {
             for (DVRoutingTableEntry entry : table) {
                 int metric;
 
-                // || entry.getMetric() > INFINITY
                 if (allow_preverse && entry.getInterface() == iface) {
                     metric = INFINITY;
                 } else {
@@ -98,8 +95,8 @@ public class DV implements RoutingAlgorithm {
                     DVRoutingTableEntry in_entry = (DVRoutingTableEntry) datum;
                     int new_metric = in_entry.getMetric() + router.getInterfaceWeight(iface);
                     if (new_metric > INFINITY) new_metric = INFINITY;
-                    // Search for destination in entry table //
 
+                    // Search for destination in entry table //
                     // Finds a local entry with matching dst
                     int match = -1;
                     for (int i = 0; i < table.size(); i++) {
@@ -129,7 +126,8 @@ public class DV implements RoutingAlgorithm {
                 if (out_iface > -1) router.send(p, out_iface);
             }
         } else {
-//            System.out.println("LINK " + iface + " DOWN on router " + router.getId());
+            // Interface is down, don't do anything
+            assert true;
         }
 
     }
@@ -145,8 +143,8 @@ public class DV implements RoutingAlgorithm {
             }
         }
         System.out.println("Router " + router.getId());
-        for (int i = 0; i < table.size(); i++) {
-            System.out.println(table.get(i).toString());
+        for (DVRoutingTableEntry entry : table) {
+            System.out.println(entry.toString());
         }
     }
 
