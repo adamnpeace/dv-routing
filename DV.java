@@ -53,13 +53,18 @@ public class DV implements RoutingAlgorithm {
     }
 
     public void tidyTable() {
+        Vector<DVRoutingTableEntry> gc = new Vector<>();
         // Exp time, corresponding interfaces are up/down
-        for (int i = 0; i < table.size(); i++) {
-            if (!router.getInterfaceState(table.get(i).getInterface())) {
-                table.get(i).setMetric(INFINITY);
+        for (DVRoutingTableEntry entry : table) {
+            if (!router.getInterfaceState(entry.getInterface())) {
+                if (entry.getMetric() < INFINITY) entry.setTime(router.getCurrentTime() - 1);
+                entry.setMetric(INFINITY);
             }
-            // TODO: Implement garbage collection
+            if (entry.getMetric() >= INFINITY && router.getCurrentTime() - entry.getTime() > 4 * update_interval) {
+                gc.add(entry);
+            }
         }
+        if (allow_expire) table.removeAll(gc);
     }
 
     public Packet generateRoutingPacket(int iface) {
@@ -69,14 +74,13 @@ public class DV implements RoutingAlgorithm {
             // Occupy payload with local table
             for (DVRoutingTableEntry entry : table) {
                 int metric;
-
                 if (allow_preverse && entry.getInterface() == iface) {
                     metric = INFINITY;
                 } else {
                     metric = entry.getMetric();
                 }
-
                 payload.addEntry(new DVRoutingTableEntry(entry.getDestination(), entry.getInterface(), metric, router.getCurrentTime()));
+
             }
             p.setPayload(payload);
             return p;
@@ -104,22 +108,21 @@ public class DV implements RoutingAlgorithm {
                             match = i;
                         }
                     }
-
                     if (match < 0) {
                         // No entry found in local table with this destination
-                        DVRoutingTableEntry rt_new = new DVRoutingTableEntry(in_entry.getDestination(), iface, new_metric, router.getCurrentTime());
-                        table.add(rt_new);
-                    } else if (table.get(match).getInterface() == iface) {
+                        if (new_metric < INFINITY) {
+                            DVRoutingTableEntry rt_new = new DVRoutingTableEntry(in_entry.getDestination(), iface, new_metric, router.getCurrentTime());
+                            table.add(rt_new);
+                        }
+                    } else if (table.get(match).getInterface() == iface && table.get(match).getMetric() < INFINITY) {
                         table.get(match).setMetric(new_metric);
+                        if (new_metric >= INFINITY) table.get(match).setTime(router.getCurrentTime());
                     } else if (new_metric < table.get(match).getMetric()) {
                         // Found local entry has greater metric than incoming entry
                         table.get(match).setMetric(new_metric);
                         table.get(match).setInterface(iface);
                     }
-
                 }
-
-
             }
             if (p.getType() == Packet.DATA) {
                 int out_iface = getNextHop(p.getDestination());
